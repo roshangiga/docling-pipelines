@@ -38,6 +38,26 @@ python scripts/enrich_picture_description.py
 
 Outputs will be written to `output/`.
 
+## Jupyter: Run pipelines in a notebook
+
+Use the single comprehensive notebook `Docling_Pipelines.ipynb` to run everything interactively (all scripts + combined flow):
+
+1) Open `Docling_Pipelines.ipynb` in Jupyter (VS Code, JupyterLab, or Notebook).
+2) Ensure dependencies are installed (first cell runs `pip install -r requirements.txt`).
+3) Put inputs in `source/` (PDF, MD, DOCX, HTML).
+4) Execute cells in order:
+   - Run existing scripts directly using `%run` cells:
+     - `general_convert.py` — basic conversion to Markdown/JSON.
+     - `vlm_image_understanding.py` — VLM-assisted image understanding for PDFs.
+     - `maths_processing.py` — convert and extract math snippets.
+     - `contextual_hybrid_chunking.py` — create raw + context-enriched chunks.
+     - `enrich_formula_understanding.py` — enable Formula Understanding (LaTeX/MathML outputs).
+     - `enrich_picture_description.py` — enable Picture Description (figure captions via VLM).
+   - Use the "One-pass combination" cell to enable both Picture Description and Formula Understanding, then run contextual hybrid chunking in a single flow.
+   - List output artifacts written to `output/`.
+
+This notebook consolidates all use cases and shows modality-specific enrichments plus the contextual hybrid chunking flow without modifying the scripts.
+
 ## Notes
 
 - VLM pipeline example follows Docling docs: `VlmPipeline` with default SmolDocling backend.
