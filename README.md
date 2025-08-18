@@ -22,6 +22,22 @@ This project sets up a simple workflow using Docling 2.45.0.
 pip install -r requirements.txt
 ```
 
+### Environment configuration (LLM enrichment)
+
+Copy `env.example` to `.env` and set keys/models:
+
+```
+PROVIDER=gemini   # or gpt
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+Notes:
+- LLM enrichment is optional and used by the notebook for chunk post-processing.
+- Reusable clients live in `clients/` (`OpenAIClient`, `GeminiClient`) and return Pydantic-validated structured outputs.
+
 ## Usage
 
 - Put your input files into `source/` (e.g., PDFs).
@@ -54,6 +70,7 @@ Use the single comprehensive notebook `Docling_Pipelines.ipynb` to run everythin
      - `enrich_formula_understanding.py` — enable Formula Understanding (LaTeX/MathML outputs).
      - `enrich_picture_description.py` — enable Picture Description (figure captions via VLM).
    - Use the "One-pass combination" cell to enable both Picture Description and Formula Understanding, then run contextual hybrid chunking in a single flow.
+   - Optional LLM enrichment: select provider via `PROVIDER` (gemini/gpt) and set API key(s). Use toggles `DO_FORMULA` / `DO_PICTURE` in the env cell to enable/disable enrichments prior to conversion.
    - List output artifacts written to `output/`.
 
 This notebook consolidates all use cases and shows modality-specific enrichments plus the contextual hybrid chunking flow without modifying the scripts.
