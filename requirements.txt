@@ -1,0 +1,2 @@
+docling==2.45.0
+transformers>=4.41

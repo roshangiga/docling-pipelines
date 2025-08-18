@@ -1,0 +1,52 @@
+# Ignore generated outputs but keep placeholder
+output/*
+!output/.gitkeep
+
+# Ignore source input files but keep placeholder
+source/*
+!source/.gitkeep
+
+# IDEs / Editors
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+.build/
+.venv/
+venv/
+env/
+.env
+.env.*
+.python-version
+.pytest_cache/
+.mypy_cache/
+.cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Misc tooling
+node_modules/
