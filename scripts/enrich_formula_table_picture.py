@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -6,7 +7,8 @@ from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.datamodel.base_models import InputFormat
 
 
-def run_formula_table_picture_enrichment(pdf_path: Path, out_dir: Path) -> None:
+def run_formula_table_picture_enrichment(pdf_path: Path, out_dir: Path, archive_dir: Path) -> None:
+    print(f"Processing file: {pdf_path.name}")
     pipeline_options = PdfPipelineOptions()
     pipeline_options.do_formula_enrichment = True
     pipeline_options.do_table_structure = True
@@ -33,13 +35,21 @@ def run_formula_table_picture_enrichment(pdf_path: Path, out_dir: Path) -> None:
 
     print(f"Wrote: {md_path}")
     print(f"Wrote: {html_path}")
+    
+    # Move processed file to archive
+    archive_path = archive_dir / pdf_path.name
+    shutil.move(str(pdf_path), str(archive_path))
+    print(f"Moved {pdf_path.name} to archive")
+    print(f"Finished processing: {pdf_path.name}")
 
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[1]
     src_dir = project_root / "source"
     out_dir = project_root / "output"
+    archive_dir = project_root / "archive"
     out_dir.mkdir(parents=True, exist_ok=True)
+    archive_dir.mkdir(parents=True, exist_ok=True)
 
     pdfs = [p for p in src_dir.iterdir() if p.is_file() and p.suffix.lower() == ".pdf"]
     if not pdfs:
@@ -48,7 +58,7 @@ def main() -> int:
 
     for pdf in pdfs:
         try:
-            run_formula_table_picture_enrichment(pdf, out_dir)
+            run_formula_table_picture_enrichment(pdf, out_dir, archive_dir)
         except Exception as e:
             print(f"Failed formula enrichment for {pdf}: {e}")
 

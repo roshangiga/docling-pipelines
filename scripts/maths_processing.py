@@ -1,4 +1,5 @@
 import re
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -15,7 +16,8 @@ def extract_equations(markdown_text: str) -> dict:
     return {"inline": inline, "block": block}
 
 
-def process_file(src_path: Path, out_dir: Path) -> None:
+def process_file(src_path: Path, out_dir: Path, archive_dir: Path) -> None:
+    print(f"Processing file: {src_path.name}")
     conv = DocumentConverter()
     doc = conv.convert(str(src_path)).document
 
@@ -42,13 +44,21 @@ def process_file(src_path: Path, out_dir: Path) -> None:
 
     print(f"Wrote: {md_path}")
     print(f"Wrote: {eq_path}")
+    
+    # Move processed file to archive
+    archive_path = archive_dir / src_path.name
+    shutil.move(str(src_path), str(archive_path))
+    print(f"Moved {src_path.name} to archive")
+    print(f"Finished processing: {src_path.name}")
 
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[1]
     src_dir = project_root / "source"
     out_dir = project_root / "output"
+    archive_dir = project_root / "archive"
     out_dir.mkdir(parents=True, exist_ok=True)
+    archive_dir.mkdir(parents=True, exist_ok=True)
 
     # Accept common doc types
     exts = {".pdf", ".docx", ".pptx", ".md", ".html"}
@@ -60,7 +70,7 @@ def main() -> int:
 
     for p in sources:
         try:
-            process_file(p, out_dir)
+            process_file(p, out_dir, archive_dir)
         except Exception as e:
             print(f"Failed math processing for {p}: {e}")
 

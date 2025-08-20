@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from datetime import datetime
 from typing import Iterable
@@ -6,7 +7,8 @@ from docling.document_converter import DocumentConverter
 from docling.chunking import HybridChunker
 
 
-def chunk_and_write(doc_source: Path, out_dir: Path) -> None:
+def chunk_and_write(doc_source: Path, out_dir: Path, archive_dir: Path) -> None:
+    print(f"Processing file: {doc_source.name}")
     dl_doc = DocumentConverter().convert(str(doc_source)).document
 
     chunker = HybridChunker()
@@ -50,13 +52,21 @@ def chunk_and_write(doc_source: Path, out_dir: Path) -> None:
 
     print(f"Wrote: {txt_path}")
     print(f"Wrote: {jsonl_path}")
+    
+    # Move processed file to archive
+    archive_path = archive_dir / doc_source.name
+    shutil.move(str(doc_source), str(archive_path))
+    print(f"Moved {doc_source.name} to archive")
+    print(f"Finished processing: {doc_source.name}")
 
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[1]
     src_dir = project_root / "source"
     out_dir = project_root / "output"
+    archive_dir = project_root / "archive"
     out_dir.mkdir(parents=True, exist_ok=True)
+    archive_dir.mkdir(parents=True, exist_ok=True)
 
     # Try Markdown first (like docs example), then PDFs and others
     preferred_order = [".md", ".pdf", ".docx", ".html"]
@@ -69,7 +79,7 @@ def main() -> int:
 
     for src in sources:
         try:
-            chunk_and_write(src, out_dir)
+            chunk_and_write(src, out_dir, archive_dir)
         except Exception as e:
             print(f"Failed hybrid chunking for {src}: {e}")
 

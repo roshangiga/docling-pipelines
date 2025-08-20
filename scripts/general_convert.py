@@ -1,12 +1,14 @@
 import json
 import sys
+import shutil
 from pathlib import Path
 from datetime import datetime
 
 from docling.document_converter import DocumentConverter
 
 
-def convert_file(converter: DocumentConverter, src_path: Path, out_dir: Path) -> None:
+def convert_file(converter: DocumentConverter, src_path: Path, out_dir: Path, archive_dir: Path) -> None:
+    print(f"Processing file: {src_path.name}")
     conv_res = converter.convert(str(src_path))
     doc = conv_res.document
 
@@ -27,13 +29,21 @@ def convert_file(converter: DocumentConverter, src_path: Path, out_dir: Path) ->
 
     print(f"Wrote: {md_path}")
     print(f"Wrote: {json_path}")
+    
+    # Move processed file to archive
+    archive_path = archive_dir / src_path.name
+    shutil.move(str(src_path), str(archive_path))
+    print(f"Moved {src_path.name} to archive")
+    print(f"Finished processing: {src_path.name}")
 
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[1]
     src_dir = project_root / "source"
     out_dir = project_root / "output"
+    archive_dir = project_root / "archive"
     out_dir.mkdir(parents=True, exist_ok=True)
+    archive_dir.mkdir(parents=True, exist_ok=True)
 
     # Gather common doc types; extend as needed
     exts = {".pdf", ".docx", ".pptx", ".xlsx", ".md", ".html"}
@@ -47,7 +57,7 @@ def main() -> int:
 
     for path in sources:
         try:
-            convert_file(converter, path, out_dir)
+            convert_file(converter, path, out_dir, archive_dir)
         except Exception as e:
             print(f"Failed to convert {path}: {e}")
 

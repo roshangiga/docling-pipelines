@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -6,7 +7,8 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.pipeline.vlm_pipeline import VlmPipeline
 
 
-def convert_with_vlm(pdf_path: Path, out_dir: Path) -> None:
+def convert_with_vlm(pdf_path: Path, out_dir: Path, archive_dir: Path) -> None:
+    print(f"Processing file: {pdf_path.name}")
     converter = DocumentConverter(
         format_options={
             InputFormat.PDF: PdfFormatOption(
@@ -21,13 +23,21 @@ def convert_with_vlm(pdf_path: Path, out_dir: Path) -> None:
     md_path = out_dir / f"{pdf_path.stem}__vlm__{ts}.md"
     md_path.write_text(doc.export_to_markdown(), encoding="utf-8")
     print(f"Wrote: {md_path}")
+    
+    # Move processed file to archive
+    archive_path = archive_dir / pdf_path.name
+    shutil.move(str(pdf_path), str(archive_path))
+    print(f"Moved {pdf_path.name} to archive")
+    print(f"Finished processing: {pdf_path.name}")
 
 
 def main() -> int:
     project_root = Path(__file__).resolve().parents[1]
     src_dir = project_root / "source"
     out_dir = project_root / "output"
+    archive_dir = project_root / "archive"
     out_dir.mkdir(parents=True, exist_ok=True)
+    archive_dir.mkdir(parents=True, exist_ok=True)
 
     pdfs = [p for p in src_dir.iterdir() if p.is_file() and p.suffix.lower() == ".pdf"]
     if not pdfs:
@@ -36,7 +46,7 @@ def main() -> int:
 
     for pdf in pdfs:
         try:
-            convert_with_vlm(pdf, out_dir)
+            convert_with_vlm(pdf, out_dir, archive_dir)
         except Exception as e:
             print(f"Failed VLM conversion for {pdf}: {e}")
 
